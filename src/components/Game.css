@@ -1,0 +1,27 @@
+.Game {
+    margin-top: 5vh;
+    display: flex;
+    align-items: center;
+}
+
+.Board {
+    margin: 0 auto;
+}
+
+.SquareRow {
+    display: flex;
+    align-items: center;
+}
+
+.Square {
+    display: flex;
+    width: 30px;
+    height: 30px;
+    border: 1px solid black;
+    background-color: #849096;
+}
+
+.playerImage {
+    width: 30px;
+    height: 30px;
+}
