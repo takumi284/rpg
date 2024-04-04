@@ -27,7 +27,7 @@ const Square = (props) => {
 }
 
 const SquareRow = (props) => {
-    const squares = Array(9).fill(0);
+    const squares = Array(props.boardSize[0]).fill(0);
 
     const row = squares.map((square, x) => {
         return <Square x={x} y={props.y} positionA={props.positionA} positionB={props.positionB}/>;
@@ -44,7 +44,7 @@ const Board = (props) => {
     const rows = Array(props.boardSize[1]).fill(0);
 
     let board = rows.map((row, y) => {
-        return <SquareRow y={y} positionA={props.positionA} positionB={props.positionB}/>;
+        return <SquareRow y={y} positionA={props.positionA} positionB={props.positionB} boardSize={props.boardSize}/>;
     });
 
     return (
@@ -55,31 +55,56 @@ const Board = (props) => {
 }
 
 function manageTurn(step, turn, setStep, setTurn) {
-    if (step < 3) {
-        setStep(step + 1);
-    }
-    if (step === 2) {
-        setStep(0);
-        setTurn(!turn);
-    }
+    // if (step < 3) {
+    //     setStep(step + 1);
+    // }
+    // if (step === 2) {
+    //     setStep(0);
+    //     setTurn(!turn);
+    // }
+    setTurn(!turn);
 }
 
-function attack(step, turn, positionA, positionB, setWinner) {
-    if (step < 3) {
-        if (turn === true && positionA[0] === positionB[0]-1 && positionA[1]-positionB[1] < 2 && positionA[1]-positionB[1] > -2) {
-            setWinner('Player A');
-        } else if (turn === false && positionB[0] === positionA[0]+1 && positionB[1]-positionA[1] < 2 && positionB[1]-positionA[1] > -2) {
-            setWinner('Player B');
+// function attack(turn, positionA, positionB, setWinner, hpA, hpB, setHpA, setHpB) {
+//     if (turn === true && positionA[0] === positionB[0]-1 && positionA[1]-positionB[1] < 2 && positionA[1]-positionB[1] > -2) {
+//         if (hpB === 1) {
+//             setHpB(hpB - 1);
+//             setWinner('Player A');
+//         } else {
+//             setHpB(hpB - 1);
+//         }
+//     } else if (turn === false && positionB[0] === positionA[0]+1 && positionB[1]-positionA[1] < 2 && positionB[1]-positionA[1] > -2) {
+//         if (hpA === 1) {
+//             setHpA(hpA - 1);
+//             setWinner('Player B');
+//         } else {
+//             setHpA(hpA - 1);
+//         }
+//     }
+// }
+
+function attack(attackerName, attackerPosition, enemyPosition, attackEreaX, attackEreaY, setWinner, enemyHp, setEnemyHp) {
+    if ((attackerPosition[0] - enemyPosition[0] === -attackEreaX || attackerPosition[0] - enemyPosition[0] === attackEreaX)
+        && attackerPosition[1]-enemyPosition[1] <= attackEreaY
+        && attackerPosition[1]-enemyPosition[1] >= -attackEreaY) {
+        
+        if (enemyHp === 1) {
+            setEnemyHp(enemyHp - 1);
+            setWinner('Player ' + attackerName);
+        } else {
+            setEnemyHp(enemyHp - 1);
         }
     }
 }
 
 function Game() {
     const [positionA, setPositionA] = useState([0, 4]);
-    const [positionB, setPositionB] = useState([8, 4]);
-    const [boardSize, setBoardSize] = useState([9, 9]);
+    const [positionB, setPositionB] = useState([9, 4]);
+    const [boardSize, setBoardSize] = useState([10, 9]);
     const [turn, setTurn] = useState(true);
     const [step, setStep] = useState(0);
+    const [hpA, setHpA] = useState(6);
+    const [hpB, setHpB] = useState(6);
     const [winner, setWinner] = useState(null);
 
     const handleKeyDown = (event) => {
@@ -129,14 +154,30 @@ function Game() {
         }
 
         if (event.key === 'Enter') {
-            attack(step, turn, positionA, positionB, setWinner);
+            attack(step, turn, positionA, positionB, setWinner, hpA, hpB, setHpA, setHpB);
+            manageTurn(step, turn, setStep, setTurn);
         }
     };
 
     return (
         <div className="Game" tabIndex={0} onKeyDown={handleKeyDown}>
+            <div className="State A">
+                <h1>{winner}</h1>
+                <p>{turn ? 'My' : 'Enemy\'s'} Turn</p>
+                <p>Player A's HP: {hpA}</p>
+                <button onClick={() => attack('A', positionA, positionB, 1, 1, setWinner, hpB, setHpB)}>Attack</button>
+                <button onClick={() => manageTurn(step, turn, setStep, setTurn)}>Skip Turn</button>
+            </div>
+
             <Board boardSize={boardSize} positionA={positionA} positionB={positionB}/>
-            <h1>{winner}</h1>
+
+            <div className="State B">
+                <h1>{winner}</h1>
+                <p>{turn ? 'Enemy\'s' : 'My'} Turn</p>
+                <p>Player B's HP: {hpB}</p>
+                <button onClick={() => attack('B', positionB, positionA, 1, 1, setWinner, hpA, setHpA)}>Attack</button>
+                <button onClick={() => manageTurn(step, turn, setStep, setTurn)}>Skip Turn</button>
+            </div>
         </div>
     );
 }
