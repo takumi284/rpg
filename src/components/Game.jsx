@@ -3,37 +3,35 @@ import './Game.css';
 import playerA from '../images/logo192.png';
 import playerB from '../images/arrer.png';
 
-// function manageTurn(turn, setTurn, firstTurn, setFirstTurn) {
+const MOVE_UP_ID = 0;
+const MOVE_DOWN_ID = 1;
+const MOVE_LEFT_ID = 2;
+const MOVE_RIGHT_ID = 3;
+const DEFENCE_ID = 4;
+const ATTACK_ID = 5;
+const TAMA_ID = 6;
+const ATTACK_EREA = [1, 1, 2];
+const TAMA_EREA = [2, 1, 1];
+
+// function manageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, setAttackErea, setDefence) {
 //     if (turn === true && firstTurn === true) {
 //         setTurn(!turn);
 //     } else if (turn === false && firstTurn === false) {
 //         setTurn(!turn);
 //     } else if (turn === false && firstTurn === true) {
+//         processBooks(books, setBooks, setAttackErea, setDefence);
 //         setFirstTurn(!firstTurn);
 //     } else if (turn === true && firstTurn === false) {
+//         processBooks(books, setBooks, setAttackErea, setDefence);
 //         setFirstTurn(!firstTurn);
 //     }
 // }
+
 
 
 function manageTurn(step, turn, setStep, setTurn) {
     setTurn(!turn);
 }
-
-// function attack(attackerName, attackerPosition, enemyPosition, attackEreaX, attackEreaY, setWinner, enemyHp, setEnemyHp, turn, setTurn, damage = 1) {
-//     if ((attackerPosition[0] - enemyPosition[0] >= -attackEreaX && attackerPosition[0] - enemyPosition[0] <= attackEreaX)
-//         && attackerPosition[1]-enemyPosition[1] <= attackEreaY
-//         && attackerPosition[1]-enemyPosition[1] >= -attackEreaY) {
-        
-//         if (attackerName === 'A' && turn === true) {
-//             setEnemyHp(enemyHp - damage);
-//             setTurn(!turn);
-//         } else if (attackerName === 'B' && turn === false) {
-//             setEnemyHp(enemyHp - damage);
-//             setTurn(!turn);
-//         }
-//     }
-// }
 
 function attack(turn, setTurn, setAttackErea, attackerName, attackEreaX, attackEreaY, damage = 1) {
     if (turn === true && attackerName === 'A') {
@@ -48,9 +46,76 @@ function attack(turn, setTurn, setAttackErea, attackerName, attackEreaX, attackE
 function inAttackErea(myPosition, attackerPosition, attackErea) {
     if (myPosition[0] <= attackerPosition[0] + attackErea[0] && myPosition[0] >= attackerPosition[0] - attackErea[0]
         && myPosition[1] <= attackerPosition[1] + attackErea[1] && myPosition[1] >= attackerPosition[1] - attackErea[1]) {
-            return true;
+        
+        return true;
     }
     return false;
+}
+
+function move(position, setPosition, moveId) {
+    if (moveId === MOVE_UP_ID) {
+        setPosition([position[0], position[1] - 1]);
+    } else if (moveId === MOVE_DOWN_ID) {
+        setPosition([position[0], position[1] + 1]);
+    } else if (moveId === MOVE_LEFT_ID) {
+        setPosition([position[0] - 1, position[1]]);
+    } else if (moveId === MOVE_RIGHT_ID) {
+        setPosition([position[0] + 1, position[1]]);
+    }
+}
+
+function bookAction(books, setBooks, actionId) {
+    setBooks([...books, actionId]);
+}
+
+function processBooks(books, setBooks, positionFirst, setPositionFirst, positionSecond, setPositionSecond, setAttackEreaFirst, setAttackEreaSecond, defenceFirst,setDefenceFirst, defenceSecond,setDefenceSecond) {
+    const bookFirst = books[0];
+    const bookSecond = books[1];
+    setBooks([]);
+    
+    move(positionFirst, setPositionFirst, bookFirst);
+    move(positionSecond, setPositionSecond, bookSecond);
+
+
+    if (bookFirst === DEFENCE_ID) {
+        setDefenceFirst(true);
+    }
+
+    if (bookSecond === DEFENCE_ID) {
+        setDefenceSecond(true);
+    }
+
+    if (bookFirst === ATTACK_ID) {
+        if (defenceSecond === false) {
+            setAttackEreaFirst(ATTACK_EREA);
+            return;
+        } else{
+            setDefenceSecond(false);
+        }
+    } else if (bookSecond === ATTACK_ID) {
+        if (defenceFirst === false) {
+            setAttackEreaSecond(ATTACK_EREA);
+            return;
+        } else{
+            setDefenceFirst(false);
+        }
+    }
+
+    if (bookFirst === TAMA_ID) {
+        if (defenceSecond === false) {
+            setAttackEreaFirst(TAMA_EREA);
+            return;
+        } else{
+            setDefenceSecond(false);
+        }
+    } else if (bookSecond === TAMA_ID) {
+        if (defenceFirst === false) {
+            setAttackEreaSecond(TAMA_EREA);
+            return;
+        } else{
+            setDefenceFirst(false);
+        }
+    }
 }
 
 const Player = (props) => {
@@ -67,15 +132,16 @@ const Player = (props) => {
 
 const Square = (props) => {
     let stl = null;
-    let attackDamageA = 0;
-    let attackDamageB = 0;
+    let attackDamageByA = 0;
+    let attackDamageByB = 0;
+
     if (inAttackErea([props.x, props.y], props.positionA, props.attackEreaA)) {
-        attackDamageA = props.attackEreaA[2];
+        attackDamageByA = props.attackEreaA[2];
         stl = {backgroundColor: 'red'};
     }
 
     if (inAttackErea([props.x, props.y], props.positionB, props.attackEreaB)) {
-        attackDamageB = props.attackEreaB[2];
+        attackDamageByB = props.attackEreaB[2];
         stl = {backgroundColor: 'blue'};
     }
 
@@ -83,13 +149,13 @@ const Square = (props) => {
     if (props.x === props.positionA[0] && props.y === props.positionA[1]) {
 
         player = <Player playerType={playerA} myPosition={props.positionA}
-                    attackedDamage={attackDamageB} setAttackErea={props.setAttackEreaB}
+                    attackedDamage={attackDamageByB} setAttackErea={props.setAttackEreaB}
                     hp={props.hpA} setHp={props.setHpA}/>;
 
     } else if (props.x === props.positionB[0] && props.y === props.positionB[1]) {
 
         player = <Player playerType={playerB} myPosition={props.positionB}
-                    attackedDamage={attackDamageA} setAttackErea={props.setAttackEreaA}
+                    attackedDamage={attackDamageByA} setAttackErea={props.setAttackEreaA}
                     hp={props.hpB} setHp={props.setHpB}/>;
     }
 
@@ -105,9 +171,9 @@ const SquareRow = (props) => {
 
     const row = squares.map((square, x) => {
         return <Square x={x} y={props.y} positionA={props.positionA} positionB={props.positionB}
-        attackEreaA={props.attackEreaA} attackEreaB={props.attackEreaB}
-        setAttackEreaA={props.setAttackEreaA} setAttackEreaB={props.setAttackEreaB}
-        hpA={props.hpA} setHpA={props.setHpA} hpB={props.hpB} setHpB={props.setHpB}/>;
+                attackEreaA={props.attackEreaA} attackEreaB={props.attackEreaB}
+                setAttackEreaA={props.setAttackEreaA} setAttackEreaB={props.setAttackEreaB}
+                hpA={props.hpA} setHpA={props.setHpA} hpB={props.hpB} setHpB={props.setHpB}/>;
     });
 
     return (
@@ -122,9 +188,9 @@ const Board = (props) => {
 
     let board = rows.map((row, y) => {
         return <SquareRow y={y} positionA={props.positionA} positionB={props.positionB} boardSize={props.boardSize}
-        attackEreaA={props.attackEreaA} attackEreaB={props.attackEreaB}
-        setAttackEreaA={props.setAttackEreaA} setAttackEreaB={props.setAttackEreaB}
-        hpA={props.hpA} setHpA={props.setHpA} hpB={props.hpB} setHpB={props.setHpB}/>;
+                attackEreaA={props.attackEreaA} attackEreaB={props.attackEreaB}
+                setAttackEreaA={props.setAttackEreaA} setAttackEreaB={props.setAttackEreaB}
+                hpA={props.hpA} setHpA={props.setHpA} hpB={props.hpB} setHpB={props.setHpB}/>;
     });
 
     return (
@@ -230,9 +296,9 @@ function Game() {
             </div>
 
             <Board boardSize={boardSize} positionA={positionA} positionB={positionB} 
-            attackEreaA={attackEreaA} attackEreaB={attackEreaB}
-            setAttackEreaA={setAttackEreaA} setAttackEreaB={setAttackEreaB}
-            hpA={hpA} setHpA={setHpA} hpB={hpB} setHpB={setHpB}/>
+                    attackEreaA={attackEreaA} attackEreaB={attackEreaB}
+                    setAttackEreaA={setAttackEreaA} setAttackEreaB={setAttackEreaB}
+                    hpA={hpA} setHpA={setHpA} hpB={hpB} setHpB={setHpB}/>
 
             <div className="state B">
                 <h1>{winner}</h1>
