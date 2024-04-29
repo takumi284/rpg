@@ -10,36 +10,25 @@ const MOVE_RIGHT_ID = 3;
 const DEFENCE_ID = 4;
 const ATTACK_ID = 5;
 const TAMA_ID = 6;
+const NO_ATTACK_EREA = [0, 0, 0];
 const ATTACK_EREA = [1, 1, 2];
 const TAMA_EREA = [2, 1, 1];
+const STYLE_LIGHT = {backgroundColor: '#a9a9a9'};
+const STYLE_DARK = {backgroundColor: '#f0f0f0'};
 
-// function manageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, setAttackErea, setDefence) {
-//     if (turn === true && firstTurn === true) {
-//         setTurn(!turn);
-//     } else if (turn === false && firstTurn === false) {
-//         setTurn(!turn);
-//     } else if (turn === false && firstTurn === true) {
-//         processBooks(books, setBooks, setAttackErea, setDefence);
-//         setFirstTurn(!firstTurn);
-//     } else if (turn === true && firstTurn === false) {
-//         processBooks(books, setBooks, setAttackErea, setDefence);
-//         setFirstTurn(!firstTurn);
-//     }
-// }
-
-
-
-function manageTurn(step, turn, setStep, setTurn) {
-    setTurn(!turn);
-}
-
-function attack(turn, setTurn, setAttackErea, attackerName, attackEreaX, attackEreaY, damage = 1) {
-    if (turn === true && attackerName === 'A') {
-        setAttackErea([attackEreaX, attackEreaY, damage]);
+function manageTurn(turn, setTurn, firstTurn, setFirstTurn) {
+    if (turn === true && firstTurn === true) {
         setTurn(!turn);
-    } else if (turn === false && attackerName === 'B') {
-        setAttackErea([attackEreaX, attackEreaY, damage]);
+    } else if (turn === false && firstTurn === false) {
         setTurn(!turn);
+    } else if (turn === false && firstTurn === true) {
+        alert('行動を解決します');
+        // processBooks(books, setBooks, positionA, setPositionA, positionB, setPositionB, setAttackEreaA, setAttackEreaB, defenceA, setDefenceA, defenceB, setDefenceB);
+        setFirstTurn(!firstTurn);
+    } else if (turn === true && firstTurn === false) {
+        alert('行動を解決します');
+        // processBooks(books, setBooks, positionB, setPositionB, positionA, setPositionA, setAttackEreaB, setAttackEreaA, defenceB, setDefenceB, defenceA, setDefenceA);
+        setFirstTurn(!firstTurn);
     }
 }
 
@@ -64,14 +53,28 @@ function move(position, setPosition, moveId) {
     }
 }
 
-function bookAction(books, setBooks, actionId) {
-    setBooks([...books, actionId]);
+function bookAction(turn, firstTurn, books, setBooks, actionId) {
+    if (turn === true && firstTurn === true || turn === false && firstTurn === false) {
+        setBooks([actionId, books[1]]);
+    } else if (turn === true && firstTurn === false || turn === false && firstTurn === true) {
+        setBooks([books[0], actionId]);
+    }
+}
+
+function bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, actionId) {
+    bookAction(turn, firstTurn, books, setBooks, actionId);
+    manageTurn(turn, setTurn, firstTurn, setFirstTurn);
 }
 
 function processBooks(books, setBooks, positionFirst, setPositionFirst, positionSecond, setPositionSecond, setAttackEreaFirst, setAttackEreaSecond, defenceFirst,setDefenceFirst, defenceSecond,setDefenceSecond) {
     const bookFirst = books[0];
     const bookSecond = books[1];
-    setBooks([]);
+
+    setDefenceFirst(false);
+    setDefenceSecond(false);
+
+    setAttackEreaFirst(NO_ATTACK_EREA);
+    setAttackEreaSecond(NO_ATTACK_EREA);
     
     move(positionFirst, setPositionFirst, bookFirst);
     move(positionSecond, setPositionSecond, bookSecond);
@@ -209,10 +212,11 @@ function Game() {
     const [step, setStep] = useState(0);
     const [hpA, setHpA] = useState(6);
     const [hpB, setHpB] = useState(6);
-    const [attackEreaA, setAttackEreaA] = useState([0, 0, 0]);
-    const [attackEreaB, setAttackEreaB] = useState([0, 0, 0]);
+    const [attackEreaA, setAttackEreaA] = useState(NO_ATTACK_EREA);
+    const [attackEreaB, setAttackEreaB] = useState(NO_ATTACK_EREA);
     const [defenceA, setDefenceA] = useState(false);
     const [defenceB, setDefenceB] = useState(false);
+    const [books, setBooks] = useState([-1, -1]);
     const [winner, setWinner] = useState(null);
 
     useEffect(() => {
@@ -223,90 +227,85 @@ function Game() {
         }
     }, [hpA, hpB]);
 
+
     useEffect(() => {
-        if (turn === true) {
-            setDefenceA(false);
-            setAttackEreaA([0, 0, 0]);
+        if (firstTurn === false){
+            processBooks(books, setBooks, positionA, setPositionA, positionB, setPositionB,
+                setAttackEreaA, setAttackEreaB, defenceA, setDefenceA, defenceB, setDefenceB);
         } else {
-            setDefenceB(false);
-            setAttackEreaB([0, 0, 0]);
+            processBooks(books, setBooks, positionB, setPositionB, positionA, setPositionA,
+                setAttackEreaB, setAttackEreaA, defenceB, setDefenceB, defenceA, setDefenceA);
         }
-    }, [turn]);
+    }, [firstTurn]);
 
     const handleKeyDown = (event) => {
 
         if (event.key === 'ArrowUp') {
             if (turn === true && positionA[1] >= 1) {
-                setPositionA([positionA[0], positionA[1] - 1]);
-                manageTurn(step, turn, setStep, setTurn);
+                bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, MOVE_UP_ID);
 
             } else if (turn === false && positionB[1] >= 1){
-                setPositionB([positionB[0], positionB[1] - 1]);
-                manageTurn(step, turn, setStep, setTurn);
+                bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, MOVE_UP_ID);
             }
         }
 
         if (event.key === 'ArrowDown') {
             if (turn === true && positionA[1] <= boardSize[1] - 2) {
-                setPositionA([positionA[0], positionA[1] + 1]);
-                manageTurn(step, turn, setStep, setTurn);
+                bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, MOVE_DOWN_ID);
 
             } else if (turn === false && positionB[1] <= boardSize[1] - 2){
-                setPositionB([positionB[0], positionB[1] + 1]);
-                manageTurn(step, turn, setStep, setTurn);
+                bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, MOVE_DOWN_ID);
             }
         }
 
         if (event.key === 'ArrowLeft') {
             if (turn === true && positionA[0] >= 1) {
-                setPositionA([positionA[0] - 1, positionA[1]]);
-                manageTurn(step, turn, setStep, setTurn);
+                bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, MOVE_LEFT_ID);
 
             } else if (turn === false && positionB[0] >= 1){
-                setPositionB([positionB[0] - 1, positionB[1]]);
-                manageTurn(step, turn, setStep, setTurn);
+                bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, MOVE_LEFT_ID);
             }
         }
 
         if (event.key === 'ArrowRight') {
             if (turn === true && positionA[0] <= boardSize[0] - 2) {
-                setPositionA([positionA[0] + 1, positionA[1]]);
-                manageTurn(step, turn, setStep, setTurn);
+                bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, MOVE_RIGHT_ID);
 
             } else if (turn === false && positionB[0] <= boardSize[0] - 2){
-                setPositionB([positionB[0] + 1, positionB[1]]);
-                manageTurn(step, turn, setStep, setTurn);
+                bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, MOVE_RIGHT_ID);
             }
-        }
-
-        if (event.key === 'Enter') {
-            manageTurn(step, turn, setStep, setTurn);
         }
     };
 
     return (
         <div className="Game" tabIndex={0} onKeyDown={handleKeyDown}>
-            <div className="state A">
+            <div className="state A" style={turn ? STYLE_LIGHT : STYLE_DARK}>
                 <h1>{winner}</h1>
                 <p>{turn ? 'My' : 'Enemy\'s'} Turn</p>
                 <p>Player A's HP: {hpA}</p>
-                <button onClick={() => attack(turn, setTurn, setAttackEreaA, 'A', 1, 1, 2)}>攻撃</button>
-                <button onClick={() => attack(turn, setTurn, setAttackEreaA, 'A', 2, 1, 1)}>たま</button>
-                <button onClick={() => manageTurn(step, turn, setStep, setTurn)}>ようすみ</button>
+                <button onClick={() => bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, ATTACK_ID)}>攻撃</button>
+
+                <button onClick={() => bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, TAMA_ID)}>たま</button>
+
+                <button onClick={() => bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, DEFENCE_ID)}>ガード</button>
             </div>
 
             <Board boardSize={boardSize} positionA={positionA} positionB={positionB} 
                     attackEreaA={attackEreaA} attackEreaB={attackEreaB}
                     setAttackEreaA={setAttackEreaA} setAttackEreaB={setAttackEreaB}
                     hpA={hpA} setHpA={setHpA} hpB={hpB} setHpB={setHpB}/>
+            
+            {books[0]}{books[1]}
 
-            <div className="state B">
+            <div className="state B" style={turn ? STYLE_DARK : STYLE_LIGHT}>
                 <h1>{winner}</h1>
                 <p>{turn ? 'Enemy\'s' : 'My'} Turn</p>
                 <p>Player B's HP: {hpB}</p>
-                <button onClick={() => attack(turn, setTurn, setAttackEreaB, 'B', 1, 1, 2)}>攻撃</button>
-                <button onClick={() => attack(turn, setTurn, setAttackEreaB, 'B', 2, 1, 1)}>たま</button>
-                <button onClick={() => manageTurn(step, turn, setStep, setTurn)}>ようすみ</button>
+                <button onClick={() => bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, ATTACK_ID)}>攻撃</button>
+
+                <button onClick={() => bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, TAMA_ID)}>たま</button>
+
+                <button onClick={() => bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, DEFENCE_ID)}>ガード</button>
             </div>
         </div>
     );
