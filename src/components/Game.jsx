@@ -69,16 +69,9 @@ function bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBoo
 function processBooks(books, setBooks, positionFirst, setPositionFirst, positionSecond, setPositionSecond, setAttackEreaFirst, setAttackEreaSecond, defenceFirst,setDefenceFirst, defenceSecond,setDefenceSecond) {
     const bookFirst = books[0];
     const bookSecond = books[1];
-
-    setDefenceFirst(false);
-    setDefenceSecond(false);
-
-    setAttackEreaFirst(NO_ATTACK_EREA);
-    setAttackEreaSecond(NO_ATTACK_EREA);
     
     move(positionFirst, setPositionFirst, bookFirst);
     move(positionSecond, setPositionSecond, bookSecond);
-
 
     if (bookFirst === DEFENCE_ID) {
         setDefenceFirst(true);
@@ -88,35 +81,40 @@ function processBooks(books, setBooks, positionFirst, setPositionFirst, position
         setDefenceSecond(true);
     }
 
+    if (bookFirst === ATTACK_ID && bookSecond === ATTACK_ID && inAttackErea(positionSecond, positionFirst, ATTACK_EREA)) {
+        setAttackEreaFirst(ATTACK_EREA);
+        return;
+    }
     if (bookFirst === ATTACK_ID) {
-        if (defenceSecond === false) {
+        if (defenceSecond === true && inAttackErea(positionSecond, positionFirst, ATTACK_EREA)) {
+            return;
+        } else {
             setAttackEreaFirst(ATTACK_EREA);
-            return;
-        } else{
-            setDefenceSecond(false);
         }
-    } else if (bookSecond === ATTACK_ID) {
-        if (defenceFirst === false) {
-            setAttackEreaSecond(ATTACK_EREA);
+    }
+    if (bookSecond === ATTACK_ID) {
+        if (defenceFirst === true && inAttackErea(positionFirst, positionSecond, ATTACK_EREA)) {
             return;
-        } else{
-            setDefenceFirst(false);
+        } else {
+            setAttackEreaSecond(ATTACK_EREA);
         }
     }
 
+    if (bookFirst === TAMA_ID && bookSecond === TAMA_ID && inAttackErea(positionFirst, positionSecond, TAMA_EREA)) {
+        return;
+    }
     if (bookFirst === TAMA_ID) {
-        if (defenceSecond === false) {
+        if (defenceSecond === true && inAttackErea(positionSecond, positionFirst, TAMA_EREA)) {
+            return;
+        } else {
             setAttackEreaFirst(TAMA_EREA);
-            return;
-        } else{
-            setDefenceSecond(false);
         }
-    } else if (bookSecond === TAMA_ID) {
-        if (defenceFirst === false) {
-            setAttackEreaSecond(TAMA_EREA);
+    }
+    if (bookSecond === TAMA_ID) {
+        if (defenceFirst === true && inAttackErea(positionFirst, positionSecond, TAMA_EREA)) {
             return;
-        } else{
-            setDefenceFirst(false);
+        } else {
+            setAttackEreaSecond(TAMA_EREA);
         }
     }
 }
@@ -124,7 +122,7 @@ function processBooks(books, setBooks, positionFirst, setPositionFirst, position
 const Player = (props) => {
     if (props.attackedDamage > 0) {
         props.setHp(props.hp - props.attackedDamage);
-        props.setAttackErea([0, 0, 0]);
+        props.setAttackErea([props.attackErea[0], props.attackErea[1], 0]);
     }
     return (
         <div className="Player">
@@ -138,12 +136,12 @@ const Square = (props) => {
     let attackDamageByA = 0;
     let attackDamageByB = 0;
 
-    if (inAttackErea([props.x, props.y], props.positionA, props.attackEreaA)) {
+    if (inAttackErea([props.x, props.y], props.positionA, props.attackEreaA) && inAttackErea([props.x, props.y], props.positionB, props.attackEreaB)) { 
+        stl = {backgroundColor: 'purple'};
+    } else if (inAttackErea([props.x, props.y], props.positionA, props.attackEreaA)) {
         attackDamageByA = props.attackEreaA[2];
         stl = {backgroundColor: 'red'};
-    }
-
-    if (inAttackErea([props.x, props.y], props.positionB, props.attackEreaB)) {
+    } else if (inAttackErea([props.x, props.y], props.positionB, props.attackEreaB)) {
         attackDamageByB = props.attackEreaB[2];
         stl = {backgroundColor: 'blue'};
     }
@@ -152,13 +150,15 @@ const Square = (props) => {
     if (props.x === props.positionA[0] && props.y === props.positionA[1]) {
 
         player = <Player playerType={playerA} myPosition={props.positionA}
-                    attackedDamage={attackDamageByB} setAttackErea={props.setAttackEreaB}
+                    attackedDamage={attackDamageByB}
+                    attackErea={props.attackEreaB} setAttackErea={props.setAttackEreaB}
                     hp={props.hpA} setHp={props.setHpA}/>;
 
     } else if (props.x === props.positionB[0] && props.y === props.positionB[1]) {
 
         player = <Player playerType={playerB} myPosition={props.positionB}
-                    attackedDamage={attackDamageByA} setAttackErea={props.setAttackEreaA}
+                    attackedDamage={attackDamageByA}
+                    attackErea={props.attackEreaA} setAttackErea={props.setAttackEreaA}
                     hp={props.hpB} setHp={props.setHpB}/>;
     }
 
@@ -229,6 +229,11 @@ function Game() {
 
 
     useEffect(() => {
+        setDefenceA(false);
+        setDefenceB(false);
+        setAttackEreaA(NO_ATTACK_EREA);
+        setAttackEreaB(NO_ATTACK_EREA);
+
         if (firstTurn === false){
             processBooks(books, setBooks, positionA, setPositionA, positionB, setPositionB,
                 setAttackEreaA, setAttackEreaB, defenceA, setDefenceA, defenceB, setDefenceB);
