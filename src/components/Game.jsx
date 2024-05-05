@@ -10,6 +10,13 @@ const MOVE_RIGHT_ID = 3;
 const DEFENCE_ID = 4;
 const ATTACK_ID = 5;
 const TAMA_ID = 6;
+const MOVE_UP_KEYES = ['w', 'ArrowUp'];
+const MOVE_DOWN_KEYES = ['s', 'ArrowDown'];
+const MOVE_LEFT_KEYES = ['a', 'ArrowLeft'];
+const MOVE_RIGHT_KEYES = ['d', 'ArrowRight'];
+const DEFENCE_KEYES = ['q', 'o'];
+const ATTACK_KEYES = ['e', 'p'];
+const TAMA_KEYES = ['z', 'k'];
 const NO_ATTACK_EREA = [0, 0, 0];
 const ATTACK_EREA = [1, 1, 2];
 const TAMA_EREA = [2, 1, 1];
@@ -244,40 +251,87 @@ function Game() {
     }, [firstTurn]);
 
     const handleKeyDown = (event) => {
-
-        if (event.key === 'ArrowUp') {
+        if (event.key === MOVE_UP_KEYES[0]) {
             if (turn === true && positionA[1] >= 1) {
                 bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, MOVE_UP_ID);
+            }
+        }
 
-            } else if (turn === false && positionB[1] >= 1){
+        if (event.key === MOVE_DOWN_KEYES[0]) {
+            if (turn === true && positionA[1] <= boardSize[1] - 2) {
+                bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, MOVE_DOWN_ID);
+            }
+        }
+
+        if (event.key === MOVE_LEFT_KEYES[0]) {
+            if (turn === true && positionA[0] >= 1) {
+                bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, MOVE_LEFT_ID);
+            }
+        }
+
+        if (event.key === MOVE_RIGHT_KEYES[0]) {
+            if (turn === true && positionA[0] <= boardSize[0] - 2) {
+                bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, MOVE_RIGHT_ID);
+            }
+        }
+
+        if (event.key === MOVE_UP_KEYES[1]) {
+            if (turn === false && positionB[1] >= 1){
                 bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, MOVE_UP_ID);
             }
         }
 
-        if (event.key === 'ArrowDown') {
-            if (turn === true && positionA[1] <= boardSize[1] - 2) {
-                bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, MOVE_DOWN_ID);
-
-            } else if (turn === false && positionB[1] <= boardSize[1] - 2){
+        if (event.key === MOVE_DOWN_KEYES[1]) {
+            if (turn === false && positionB[1] <= boardSize[1] - 2){
                 bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, MOVE_DOWN_ID);
             }
         }
 
-        if (event.key === 'ArrowLeft') {
-            if (turn === true && positionA[0] >= 1) {
-                bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, MOVE_LEFT_ID);
-
-            } else if (turn === false && positionB[0] >= 1){
+        if (event.key === MOVE_LEFT_KEYES[1]) {
+            if (turn === false && positionB[0] >= 1){
                 bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, MOVE_LEFT_ID);
             }
         }
 
-        if (event.key === 'ArrowRight') {
-            if (turn === true && positionA[0] <= boardSize[0] - 2) {
+        if (event.key === MOVE_RIGHT_KEYES[1]) {
+            if (turn === false && positionB[0] <= boardSize[0] - 2){
                 bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, MOVE_RIGHT_ID);
+            }
+        }
 
-            } else if (turn === false && positionB[0] <= boardSize[0] - 2){
-                bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, MOVE_RIGHT_ID);
+        if (event.key === DEFENCE_KEYES[0]) {
+            if (turn === true) {
+                bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, DEFENCE_ID);
+            }
+        }
+
+        if (event.key === DEFENCE_KEYES[1]) {
+            if (turn === false) {
+                bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, DEFENCE_ID);
+            }
+        }
+
+        if (event.key === ATTACK_KEYES[0]) {
+            if (turn === true) {
+                bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, ATTACK_ID);
+            }
+        }
+
+        if (event.key === ATTACK_KEYES[1]) {
+            if (turn === false) {
+                bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, ATTACK_ID);
+            }
+        }
+
+        if (event.key === TAMA_KEYES[0]) {
+            if (turn === true) {
+                bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, TAMA_ID);
+            }
+        }
+
+        if (event.key === TAMA_KEYES[1]) {
+            if (turn === false) {
+                bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, TAMA_ID);
             }
         }
     };
@@ -288,11 +342,11 @@ function Game() {
                 <h1>{winner}</h1>
                 <p>{turn ? 'My' : 'Enemy\'s'} Turn</p>
                 <p>Player A's HP: {hpA}</p>
-                <button onClick={() => bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, ATTACK_ID)}>攻撃</button>
+                <button onClick={() => bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, ATTACK_ID)}>攻撃: {ATTACK_KEYES[0]}</button>
 
-                <button onClick={() => bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, TAMA_ID)}>たま</button>
+                <button onClick={() => bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, TAMA_ID)}>たま: {TAMA_KEYES[0]}</button>
 
-                <button onClick={() => bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, DEFENCE_ID)}>ガード</button>
+                <button onClick={() => bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, DEFENCE_ID)}>ガード: {DEFENCE_KEYES[0]}</button>
             </div>
 
             <Board boardSize={boardSize} positionA={positionA} positionB={positionB} 
@@ -306,11 +360,11 @@ function Game() {
                 <h1>{winner}</h1>
                 <p>{turn ? 'Enemy\'s' : 'My'} Turn</p>
                 <p>Player B's HP: {hpB}</p>
-                <button onClick={() => bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, ATTACK_ID)}>攻撃</button>
+                <button onClick={() => bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, ATTACK_ID)}>攻撃: {ATTACK_KEYES[1]}</button>
 
-                <button onClick={() => bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, TAMA_ID)}>たま</button>
+                <button onClick={() => bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, TAMA_ID)}>たま: {TAMA_KEYES[1]}</button>
 
-                <button onClick={() => bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, DEFENCE_ID)}>ガード</button>
+                <button onClick={() => bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBooks, DEFENCE_ID)}>ガード: {DEFENCE_KEYES[1]}</button>
             </div>
         </div>
     );
