@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/rpg/static/css/main.6394a3b1.css",
-    "main.js": "/rpg/static/js/main.59b02cf6.js",
-    "static/js/453.26bf219d.chunk.js": "/rpg/static/js/453.26bf219d.chunk.js",
-    "index.html": "/rpg/index.html",
-    "main.6394a3b1.css.map": "/rpg/static/css/main.6394a3b1.css.map",
-    "main.59b02cf6.js.map": "/rpg/static/js/main.59b02cf6.js.map",
-    "453.26bf219d.chunk.js.map": "/rpg/static/js/453.26bf219d.chunk.js.map"
+    "main.css": "/turn_based_fighting_game/static/css/main.edfbc605.css",
+    "main.js": "/turn_based_fighting_game/static/js/main.d4fe73c5.js",
+    "static/js/453.e2a07e13.chunk.js": "/turn_based_fighting_game/static/js/453.e2a07e13.chunk.js",
+    "index.html": "/turn_based_fighting_game/index.html",
+    "main.edfbc605.css.map": "/turn_based_fighting_game/static/css/main.edfbc605.css.map",
+    "main.d4fe73c5.js.map": "/turn_based_fighting_game/static/js/main.d4fe73c5.js.map",
+    "453.e2a07e13.chunk.js.map": "/turn_based_fighting_game/static/js/453.e2a07e13.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.6394a3b1.css",
-    "static/js/main.59b02cf6.js"
+    "static/css/main.edfbc605.css",
+    "static/js/main.d4fe73c5.js"
   ]
 }
