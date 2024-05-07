@@ -1,8 +1,8 @@
 {
-  "name": "rpg",
+  "name": "turn_based_fighting_game",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://takumi284.github.io/rpg/",
+  "homepage": "https://takumi284.github.io/turn_based_fighting_game/",
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
