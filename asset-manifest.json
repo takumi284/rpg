@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/turn_based_fighting_game/static/css/main.edfbc605.css",
-    "main.js": "/turn_based_fighting_game/static/js/main.8604406f.js",
+    "main.js": "/turn_based_fighting_game/static/js/main.f09e7c51.js",
     "static/js/453.e2a07e13.chunk.js": "/turn_based_fighting_game/static/js/453.e2a07e13.chunk.js",
     "index.html": "/turn_based_fighting_game/index.html",
     "main.edfbc605.css.map": "/turn_based_fighting_game/static/css/main.edfbc605.css.map",
-    "main.8604406f.js.map": "/turn_based_fighting_game/static/js/main.8604406f.js.map",
+    "main.f09e7c51.js.map": "/turn_based_fighting_game/static/js/main.f09e7c51.js.map",
     "453.e2a07e13.chunk.js.map": "/turn_based_fighting_game/static/js/453.e2a07e13.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.edfbc605.css",
-    "static/js/main.8604406f.js"
+    "static/js/main.f09e7c51.js"
   ]
 }
