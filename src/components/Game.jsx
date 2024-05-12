@@ -30,11 +30,9 @@ function manageTurn(turn, setTurn, firstTurn, setFirstTurn) {
         setTurn(!turn);
     } else if (turn === false && firstTurn === true) {
         alert('行動を解決します');
-        // processBooks(books, setBooks, positionA, setPositionA, positionB, setPositionB, setAttackEreaA, setAttackEreaB, defenceA, setDefenceA, defenceB, setDefenceB);
         setFirstTurn(!firstTurn);
     } else if (turn === true && firstTurn === false) {
         alert('行動を解決します');
-        // processBooks(books, setBooks, positionB, setPositionB, positionA, setPositionA, setAttackEreaB, setAttackEreaA, defenceB, setDefenceB, defenceA, setDefenceA);
         setFirstTurn(!firstTurn);
     }
 }
@@ -46,6 +44,14 @@ function inAttackErea(myPosition, attackerPosition, attackErea) {
         return true;
     }
     return false;
+}
+
+function attack(setErea, erea, defence) {
+    if (defence === true) {
+        setErea([erea[0], erea[1], 0]);
+    } else {
+        setErea(erea);
+    }
 }
 
 function move(position, setPosition, moveId) {
@@ -73,37 +79,37 @@ function bookAndManageTurn(turn, setTurn, firstTurn, setFirstTurn, books, setBoo
     manageTurn(turn, setTurn, firstTurn, setFirstTurn);
 }
 
-function processBooks(books, setBooks, positionFirst, setPositionFirst, positionSecond, setPositionSecond, setAttackEreaFirst, setAttackEreaSecond, defenceFirst,setDefenceFirst, defenceSecond,setDefenceSecond) {
+function processBooks(books, setBooks, positionFirst, setPositionFirst, positionSecond, setPositionSecond, setAttackEreaFirst, setAttackEreaSecond) {
     const bookFirst = books[0];
     const bookSecond = books[1];
     
     move(positionFirst, setPositionFirst, bookFirst);
     move(positionSecond, setPositionSecond, bookSecond);
 
+    let defenceFirst = false;
     if (bookFirst === DEFENCE_ID) {
-        setDefenceFirst(true);
+        defenceFirst = true;
     }
 
+    let defenceSecond = false;
     if (bookSecond === DEFENCE_ID) {
-        setDefenceSecond(true);
+        defenceSecond = true;
     }
 
     if (bookFirst === ATTACK_ID && bookSecond === ATTACK_ID && inAttackErea(positionSecond, positionFirst, ATTACK_EREA)) {
-        setAttackEreaFirst(ATTACK_EREA);
+        attack(setAttackEreaFirst, ATTACK_EREA, defenceSecond);
         return;
     }
     if (bookFirst === ATTACK_ID) {
-        if (defenceSecond === true && inAttackErea(positionSecond, positionFirst, ATTACK_EREA)) {
+        if (inAttackErea(positionSecond, positionFirst, ATTACK_EREA)) {
+            attack(setAttackEreaFirst, ATTACK_EREA, defenceSecond);
             return;
-        } else {
-            setAttackEreaFirst(ATTACK_EREA);
         }
     }
     if (bookSecond === ATTACK_ID) {
-        if (defenceFirst === true && inAttackErea(positionFirst, positionSecond, ATTACK_EREA)) {
+        if (inAttackErea(positionFirst, positionSecond, ATTACK_EREA)) {
+            attack(setAttackEreaSecond, ATTACK_EREA, defenceFirst);
             return;
-        } else {
-            setAttackEreaSecond(ATTACK_EREA);
         }
     }
 
@@ -111,17 +117,15 @@ function processBooks(books, setBooks, positionFirst, setPositionFirst, position
         return;
     }
     if (bookFirst === TAMA_ID) {
-        if (defenceSecond === true && inAttackErea(positionSecond, positionFirst, TAMA_EREA)) {
+        if (inAttackErea(positionSecond, positionFirst, TAMA_EREA)) {
+            attack(setAttackEreaFirst, TAMA_EREA, defenceSecond);
             return;
-        } else {
-            setAttackEreaFirst(TAMA_EREA);
         }
     }
     if (bookSecond === TAMA_ID) {
-        if (defenceFirst === true && inAttackErea(positionFirst, positionSecond, TAMA_EREA)) {
+        if (inAttackErea(positionFirst, positionSecond, TAMA_EREA)) {
+            attack(setAttackEreaSecond, TAMA_EREA, defenceFirst);
             return;
-        } else {
-            setAttackEreaSecond(TAMA_EREA);
         }
     }
 }
@@ -144,6 +148,8 @@ const Square = (props) => {
     let attackDamageByB = 0;
 
     if (inAttackErea([props.x, props.y], props.positionA, props.attackEreaA) && inAttackErea([props.x, props.y], props.positionB, props.attackEreaB)) { 
+        attackDamageByA = props.attackEreaA[2];
+        attackDamageByB = props.attackEreaB[2];
         stl = {backgroundColor: 'purple'};
     } else if (inAttackErea([props.x, props.y], props.positionA, props.attackEreaA)) {
         attackDamageByA = props.attackEreaA[2];
@@ -234,19 +240,16 @@ function Game() {
         }
     }, [hpA, hpB]);
 
-
     useEffect(() => {
-        setDefenceA(false);
-        setDefenceB(false);
         setAttackEreaA(NO_ATTACK_EREA);
         setAttackEreaB(NO_ATTACK_EREA);
 
         if (firstTurn === false){
             processBooks(books, setBooks, positionA, setPositionA, positionB, setPositionB,
-                setAttackEreaA, setAttackEreaB, defenceA, setDefenceA, defenceB, setDefenceB);
+                setAttackEreaA, setAttackEreaB);
         } else {
             processBooks(books, setBooks, positionB, setPositionB, positionA, setPositionA,
-                setAttackEreaB, setAttackEreaA, defenceB, setDefenceB, defenceA, setDefenceA);
+                setAttackEreaB, setAttackEreaA);
         }
     }, [firstTurn]);
 
